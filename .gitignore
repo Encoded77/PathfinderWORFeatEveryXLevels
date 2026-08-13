@@ -1,0 +1,10 @@
+# Build output
+bin/
+obj/
+
+# Release zips
+dist/
+
+# IDE
+.vs/
+*.user
