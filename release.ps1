@@ -33,11 +33,19 @@ $zip = Join-Path $dist "FeatsEveryXLevels-$version.zip"
 if (Test-Path $zip) { Remove-Item $zip -Force }
 Compress-Archive -Path $stage -DestinationPath $zip
 
-git -C $root push origin HEAD
-if ($LASTEXITCODE -ne 0) { throw 'git push failed.' }
-
 if (-not $Notes) { $Notes = "Install with Unity Mod Manager (drop the zip on the Mods tab), or extract into the game's Mods folder." }
-gh release create $tag $zip --title "Feats Every X Levels $tag" --notes $Notes
-if ($LASTEXITCODE -ne 0) { throw 'gh release create failed.' }
+
+# gh resolves the repo from the working directory, so run from the repo root.
+Push-Location $root
+try {
+    git push origin HEAD
+    if ($LASTEXITCODE -ne 0) { throw 'git push failed.' }
+
+    gh release create $tag $zip --title "Feats Every X Levels $tag" --notes $Notes
+    if ($LASTEXITCODE -ne 0) { throw 'gh release create failed.' }
+}
+finally {
+    Pop-Location
+}
 
 Write-Output "Released $tag ($zip)"
